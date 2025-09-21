@@ -9,8 +9,11 @@ import math
 
 # search an unordered list L for a key x using iterate
 def isearch(L, x):
-    ###TODO
-    ###
+    for i in L:
+        if i == x:
+            return True
+    return False
+
 
 def test_isearch():
     assert isearch([1, 3, 5, 4, 2, 9, 7], 2) == (2 in [1, 3, 5, 4, 2, 9, 7])
@@ -28,8 +31,10 @@ def iterate(f, x, a):
 
 # search an unordered list L for a key x using reduce
 def rsearch(L, x):
-    ###TODO
-    ###
+    bool_array = [i == x for i in L]
+    return reduce(lambda a, b: a or b, False, bool_array)
+
+
 
 def test_rsearch():
     assert rsearch([1, 3, 5, 4, 2, 9, 7], 2) == (2 in [1, 3, 5, 4, 2, 9, 7])
@@ -82,7 +87,7 @@ def parens_match_iterative(mylist):
     >>>parens_match_iterative(['('])
     False
     """
-    ### TODO
+    ###  
     return iterate(parens_update, 0, mylist) == 0
     ###
 
@@ -99,8 +104,17 @@ def parens_update(current_output, next_input):
     Returns:
       the updated value of `current_output`
     """
-    ###TODO
-    ###
+    if current_output == -1:
+        return -1  
+    if next_input == '(':
+        return current_output + 1
+    elif next_input == ')':
+        if current_output == 0:
+            return -1  
+        return current_output - 1
+    else:
+        return current_output 
+    
 
 
 def test_parens_match_iterative():
@@ -133,8 +147,11 @@ def parens_match_scan(mylist):
     False
     
     """
-    ###TODO
+    mapped_list = list(map(paren_map, mylist))
+    prefix_sums, total_sum = scan(lambda x, y: x + y, 0, mapped_list)
+    return all(i >= 0 for i in prefix_sums) and total_sum == 0
     ###
+    
 
 def scan(f, id_, a):
     """
@@ -211,15 +228,29 @@ def parens_match_dc_helper(mylist):
       L is the number of unmatched left parentheses. This output is used by 
       parens_match_dc to return the final True or False value
     """
-    ###TODO
-    # base cases
+    n = len(mylist)
     
-    # recursive case
-    # - first solve subproblems
+    if n == 0:
+        return (0, 0)
+    if n == 1:
+        if mylist[0] == '(':
+            return (0, 1)
+        elif mylist[0] == ')':
+            return (1, 0)
+        else:
+            return (0, 0)
     
-    # - then compute the solution (R,L) using these solutions, in constant time.
+    # Divide
+    mid = n // 2
+    left_R, left_L = parens_match_dc_helper(mylist[:mid])
+    right_R, right_L = parens_match_dc_helper(mylist[mid:])
     
-    ###
+    # Combine 
+    matched = min(left_L, right_R)
+    total_R = left_R + right_R - matched
+    total_L = left_L + right_L - matched
+    
+    return (total_R, total_L)
     
 
 def test_parens_match_dc():
@@ -231,3 +262,11 @@ def test_parens_match_dc():
     assert parens_match_dc(['(', '(', ')']) == False
     assert parens_match_dc(['(', 'a', ')', ')', '(']) == False
     assert parens_match_dc([]) == True 
+
+
+if __name__ == "__main__":
+    test_isearch()
+    test_rsearch()
+    test_parens_match_iterative()
+    test_parens_match_scan()
+    test_parens_match_dc()
